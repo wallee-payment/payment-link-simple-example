@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+			<title>Maps API Payment Link Example</title>
+
+			<link rel="stylesheet"
+				href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
+				integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
+				crossorigin="anonymous">
+				<meta name="viewport"
+					content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                <script
+                    src="https://code.jquery.com/jquery-3.2.1.min.js"
+                    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+                    crossorigin="anonymous"></script>
+	</head>
+	<body>
+
+		<div class="container">
+
+			<form
+				action="https://app-wallee.com/s/746/payment/link/process/2/YuqWqVM2Y8iyQb2NmJDPdNJXwQAljvKIAf2zkC_v4Ew"
+				method="POST">
+
+				<h1>Address</h1>
+
+				<h2>Input</h2>
+				
+				<div class="form-group row">
+                                        <label for="autocomplete" class="col-sm-2 col-form-label">Autocomplete</label>
+					<div class="col-sm-10">
+                                                <input type="text" class="form-control" id="autocomplete"
+                                                        placeholder="Enter your address" onFocus="geolocate()"/>
+                                        </div>
+				</div>
+
+				<div class="form-group row">
+					<label for="givenName" class="col-sm-2 col-form-label">Name</label>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="givenName"
+							name="billingAddress[givenName]" placeholder="Given Name"
+							required="required" />
+					</div>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="familyName"
+							name="billingAddress[familyName]" placeholder="Familiy Name"
+							required="required" />
+					</div>
+				</div>
+
+				<h2>Verify</h2>
+
+				<div class="form-group row">
+					<label for="street" class="col-sm-2 col-form-label">Street</label>
+                                        <div class="col-sm-7">
+						<input type="text" class="form-control" id="streetName"
+							placeholder="Street Name" required="required"/>
+					</div>
+					<div class="col-sm-3">
+						<input type="text" class="form-control" id="streetNumber"
+							placeholder="Street Number"/>
+                                        </div>
+
+					<input type="hidden" class="form-control" id="street"
+						name="billingAddress[street]" placeholder="Street" required="required"/>
+				</div>
+
+
+				<div class="form-group row">
+					<label for="city" class="col-sm-2 col-form-label">City</label>
+					<div class="col-sm-3">
+						<input type="text" class="form-control" id="postCode"
+							name="billingAddress[postCode]" placeholder="ZIP Code" required="required"/>
+					</div>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="city"
+							name="billingAddress[city]" placeholder="City" required="required"/>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label for="country" class="col-sm-2 col-form-label">Country</label>
+					<div class="col-sm-3">
+						<input type="text" class="form-control" id="state" placeholder="State"/>
+					</div>
+
+					<div class="col-sm-7">
+						<input name="billingAddress[country]" type="text" placeholder="Country" class="form-control"
+							id="country" required="required" />
+					</div>
+					
+					<input type="hidden" id="stateId" name="billingAddress[postalState]" />
+				</div>
+
+				<!-- We define here the product. -->
+				<input type="hidden" name="lineItems[0][uniqueId]" value="test" />
+				<input type="hidden" name="lineItems[0][sku]" value="test" />
+				<input type="hidden" name="lineItems[0][name]" value="Test" />
+				<input type="hidden" name="lineItems[0][amountIncludingTax]"
+					value="10.87" />
+				<input type="hidden" name="lineItems[0][type]" value="PRODUCT" />
+				<input type="hidden" name="lineItems[0][quantity]" value="1" />
+
+				<input type="submit" class="btn btn-primary" value="Pay" />
+
+			</form>
+		</div>
+		<script>
+		var placeSearch, autocomplete;
+		
+		// local field name => map api name
+		// street must additionally be combined (see setStreet())
+		// state must additionally be combined (see setState())
+		var localForm = {
+                        country: 'country',
+                        city: 'locality',
+                        postCode: 'postal_code',
+                        streetName: 'route',
+                        streetNumber: 'street_number',
+                        state: 'administrative_area_level_1'
+		};
+		
+		// which form is preferred per address component.
+                var componentForm = {
+                        street_number: 'short_name',
+                        route: 'long_name',
+                        locality: 'long_name',
+                        administrative_area_level_1: 'short_name',
+                        country: 'short_name',
+                        postal_code: 'short_name'
+                };
+
+                function initAutocomplete() {
+                        autocomplete = new google.maps.places.Autocomplete(
+                                (document.getElementById('autocomplete')), {
+                                        types: ['address']
+                                });
+
+                        autocomplete.addListener('place_changed', fillInAddress);
+                }
+
+                // fill address form from autocompleted place
+                function fillInAddress() {
+                        var place = autocomplete.getPlace();
+                        console.dir(place);
+
+                        // reset form elements
+                        for (var localPart in localForm) {
+                                document.getElementById(localPart).value = '';
+                        }
+                        
+                        // fill any found address components
+                        for (var i = 0; i < place.address_components.length; i++) {
+                                var addressType = place.address_components[i].types[0];
+                                for (var localPart in localForm ){
+                                    if(localForm[localPart].indexOf(addressType) !== -1) {
+                                        document.getElementById(localPart).value = place.address_components[i][componentForm[addressType]];
+                                    }
+                                }
+                        }
+                        
+                        setStreet();
+                        setState();
+                        
+                }
+                
+                // set hidden street element from route + street number
+                function setStreet() {
+                        document.getElementById('street').value = document.getElementById('streetName').value + ' ' + document.getElementById('streetNumber').value;
+                }
+                
+                // set hidden state element from country + state
+                function setState() {
+                    var stateCode = document.getElementById('state').value;
+                    var countryCode = document.getElementById('country').value;
+                    if(stateCode) {
+                        document.getElementById('stateId').value =  countryCode + "-" + stateCode;
+                    }
+                }
+
+                // center search results on current position
+                function geolocate() {
+                        return; // comment this line if locations should be relative to current location
+                        if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition(function (position) {
+                                        var geolocation = {
+                                                lat: position.coords.latitude,
+                                                lng: position.coords.longitude
+                                        };
+                                        var circle = new google.maps.Circle({
+                                                center: geolocation,
+                                                radius: position.coords.accuracy
+                                        });
+                                        autocomplete.setBounds(circle.getBounds());
+                                });
+                        }
+                }
+                </script>
+
+		<script
+			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdlEKTCGa1E0vN_20QmVqfpnvqmiPXSt8&libraries=places&callback=initAutocomplete"
+			async defer></script>
+
+	</body>
+</html>

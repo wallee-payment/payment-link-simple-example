@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Simple Payment Link Example</title>
+
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
+	integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
+	crossorigin="anonymous">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+
+	<div class="container">
+
+		<form
+			action="https://app-wallee.com/s/746/payment/link/process/2/YuqWqVM2Y8iyQb2NmJDPdNJXwQAljvKIAf2zkC_v4Ew"
+			method="POST">
+			
+			<h1>Donate</h1>
+			
+			<div class="form-group row">
+				<label for="donationAmount" class="col-sm-2 col-form-label">Donation Amount</label>
+				<div class="col-sm-10">
+					<select class="form-control" id="donationSelect" required="required" onChange="setCharityAmount()">
+						<option value="5.00">Small Donation</option>
+						<option value="20.00">Big Donation</option>
+						<option value="50.00">Huge Donation</option>
+						<option value="custom">Custom Donation</option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="form-group row">
+                                <div class="col-sm-2"></div>
+				<div class="col-sm-10">
+                                        <div class="input-group">
+                                            <div class="input-group-addon">€</div>
+                                            <input type="number" class="form-control" id="donationAmount"
+                                                    name="lineItems[0][amountIncludingTax]" placeholder="1.00" min="0.01" step="0.01" readonly="readonly">
+                                        </div>
+				</div>
+			</div>
+
+			<h1>Address</h1>
+
+			<div class="form-group row">
+				<label for="givenName" class="col-sm-2 col-form-label">Given
+					Name</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="givenName"
+						name="billingAddress[givenName]" placeholder="Given Name" required="">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="familyName" class="col-sm-2 col-form-label">Family
+					Name</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="familyName"
+						name="billingAddress[familyName]" placeholder="Familiy Name" required="required">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="street" class="col-sm-2 col-form-label">Street</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="street" name="billingAddress[street]"
+						placeholder="Street" required="required">
+				</div>
+			</div>
+
+
+			<div class="form-group row">
+				<label for="city" class="col-sm-2 col-form-label">City</label>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" id="postCode"
+						name="billingAddress[postCode]" placeholder="ZIP Code" required="required" >
+				</div>
+				<div class="col-sm-7">
+					<input type="text" class="form-control" id="city" name="billingAddress[city]"
+						placeholder="City" required="required">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="country" class="col-sm-2 col-form-label">Country</label>
+				<div class="col-sm-10">
+					<select name="billingAddress[country]" class="form-control" id="country" required="required">
+						<option value="DE">Germany</option>
+						<option value="AT">Austria</option>
+						<option value="FR">France</option>
+						<option value="IT">Italy</option>
+						<option value="SP">Spain</option>
+					</select>
+				</div>
+			</div>
+
+			<!-- We define here the product. -->
+			<input type="hidden" name="lineItems[0][uniqueId]" value="test" />
+			<input type="hidden" name="lineItems[0][sku]" value="test" />
+			<input type="hidden" name="lineItems[0][name]" value="Test" />
+			<input type="hidden" name="lineItems[0][amountIncludingTax]" value="10.87" />
+			<input type="hidden" name="lineItems[0][type]" value="PRODUCT" />
+			<input type="hidden" name="lineItems[0][quantity]" value="1" />
+			
+			<input type="hidden" name="currency" value="EUR" />
+
+			<input type="submit" class="btn btn-primary" value="Pay" />
+
+		</form>
+	</div>
+        <script type="text/javascript">
+        function setCharityAmount() {
+            if(document.getElementById('donationSelect').value == 'custom') {
+                document.getElementById('donationAmount').removeAttribute('readonly');
+                document.getElementById('donationAmount').setAttribute('required', 'required');
+            }
+            else {
+                document.getElementById('donationAmount').removeAttribute('required');
+                document.getElementById('donationAmount').setAttribute('readonly', 'readonly');
+                document.getElementById('donationAmount').value = document.getElementById('donationSelect').value;
+            }
+        }
+        setCharityAmount();
+        </script>
+
+</body>
+</html>
