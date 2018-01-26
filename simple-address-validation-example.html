@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Simple Payment Link Example</title>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+	<div class="container">
+
+		<form action="https://app-wallee.com/s/746/payment/link/process/2/YuqWqVM2Y8iyQb2NmJDPdNJXwQAljvKIAf2zkC_v4Ew"
+			method="POST" onsubmit="validateAddresses">
+
+			<h1>Address</h1>
+			<div class="container" data-toggle="postal-address-form-element" data-prefix="billingAddress"> 
+
+				<div class="form-group row has-error" id="billingAddress-givenName-container">
+					<label for="billingAddress-givenName" class="col-sm-2 col-form-label">Given Name</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="billingAddress-givenName" data-name="givenName" data-toggle="postal-address-field"
+						name="billingAddress[givenName]" placeholder="Given Name" required="required">
+						<span id="billingAddress-givenName-error" class="form-text text-danger"></span>
+					</div>
+				</div>
+
+				<div class="form-group row" id="billingAddress-familyName-container">
+					<label for="billingAddress-familyName" class="col-sm-2 col-form-label">Family Name</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="billingAddress-familyName" data-name="familyName" data-toggle="postal-address-field"
+						name="billingAddress[familyName]" placeholder="Familiy Name" required="required">
+						<span id="billingAddress-familyName-error" class="form-text text-danger"></span>
+					</div>
+				</div>
+
+				<div class="form-group row" id="billingAddress-country-container">
+					<label for="billingAddress-country" class="col-sm-2 col-form-label control-label">Country</label>
+					<div class="col-sm-10">
+						<select class="form-control" id="billingAddress-country" data-name="country" data-toggle="postal-address-field"
+						name="billingAddress[country]" required="required" >
+							<option value="">Select country</option>
+						</select>
+						<span id="billingAddress-country-error" class="form-text text-danger"></span>
+					</div>
+				</div>
+
+				<div class="form-group row " id="billingAddress-street-container">
+					<label for="billingAddress-street" class="col-sm-2 col-form-label">Street</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="billingAddress-street" data-name="street" data-toggle="postal-address-field" 
+						data-country-dependent="true"
+						name="billingAddress[street]" placeholder="Street">
+						<span id="billingAddress-street-error" class="form-text text-danger"></span>
+					</div>
+				</div>
+
+				<div class="form-group row" id="billingAddress-city-container">
+					<label for="billingAddress-city" class="col-sm-2 col-form-label">City</label>
+					<div class="col-sm-10" >
+						<input type="text" class="form-control" id="billingAddress-city" data-name="city" data-toggle="postal-address-field" 
+						data-country-dependent="true" 
+						name="billingAddress[city]"	placeholder="City">
+						<span id="billingAddress-city-error" class="form-text text-danger"></span>
+					</div>
+				</div>
+
+				<div class="form-group row" id="billingAddress-postCode-container">
+					<label for="billingAddress-city" class="col-sm-2 col-form-label">Post Code</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="billingAddress-postCode" data-name="postCode" data-toggle="postal-address-field" 
+						data-country-dependent="true"
+						name="billingAddress[postCode]" placeholder="Post Code" required="required" >
+						<span id="billingAddress-postCode-error" class="form-text text-danger"></span>
+					</div>
+				</div>
+
+				<div class="form-group row" id="billingAddress-postalState-container" hidden>
+					<label for="billingAddress-postalState" class="col-sm-2 col-form-label control-label">Postal State</label>
+					<div class="col-sm-10">
+						<select class="form-control" id="billingAddress-postalState" data-name="postalState" data-toggle="postal-address-field"
+						name="billingAddress[postalState]"  >
+							<option value="">Select state</option>
+						</select>
+						<span id="billingAddress-postalState-error" class="form-text text-danger"></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- We define here the product. -->
+			<input type="hidden" name="lineItems[0][uniqueId]" value="test" />
+			<input type="hidden" name="lineItems[0][sku]" value="test" />
+			<input type="hidden" name="lineItems[0][name]" value="Test" />
+			<input type="hidden" name="lineItems[0][amountIncludingTax]" value="10.87" />
+			<input type="hidden" name="lineItems[0][type]" value="PRODUCT" />
+			<input type="hidden" name="lineItems[0][quantity]" value="1" />
+
+			<input type="submit" class="btn btn-primary" value="Pay"  />
+		</form>
+
+	</div>
+
+
+	<script type="text/javascript" src="http://localhost:8000/assets/address/address-handler.js?language=en"></script>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript">
+		
+		var addresses = [];
+
+
+		function validateAddresses() {
+			// FIXME
+			addresses[0].validate();
+		
+			return false;
+		};
+
+		(function($){
+			var countryMap = {};
+
+			var Utils = {
+
+				sortByKey: function(array, key){
+					return array.sort(function(a, b) {
+						var x = a[key]; var y = b[key];
+						return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+					});
+				},
+
+				capitalizeFirstLetter: function(value){
+					return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+				},
+
+				upperUnderscoreToLowerCamelCase: function(field){
+					if(!field || typeof field != 'string'){
+						return field;
+					}
+					var result = '';
+					field.split('_').forEach(function(part, i){
+						if(i == 0){
+							result += part.toLowerCase();
+						} else {
+							result += this.capitalizeFirstLetter(part);
+						}
+					});
+					return result;
+				},
+
+				camelCaseToUpperUnderscore: function (word) {
+					return !word ? null : word.replace(/([A-Z])/g, function (g) { return '_' + g[0] }).toUpperCase();
+				},
+
+				hide(element){
+					element.style.visibility = 'hidden';
+					element.hidden = true;
+					return;
+				},
+
+				show(element){
+					element.style.visibility = 'visible';
+					element.hidden = false;
+					return;
+				}
+			};
+
+
+			var PostalAddressFormElement = function($container) {
+				var $fields = $container.find('[data-toggle="postal-address-field"]');
+				var prefix = $container.attr('data-prefix') + '-';
+				var $countryElement = $('#' + prefix + 'country');
+
+				window.AddressHandler.getCountries(function(response){
+					var countries = JSON.parse(response);
+					Utils.sortByKey(countries, 'name');
+					countries.forEach(function(country, index){
+						countryMap[country.isocode2Letter] = country;
+						$countryElement.append($('<option>', {
+						    value: country.isocode2Letter,
+						    text: country.name
+						}));
+					});
+				});
+
+				function updateCountry() {
+					var country = countryMap[$countryElement[0].value];
+					updateCountryDependentFields(country);
+					updatePostalState(country);
+				};
+
+				function updateCountryDependentFields(country) {
+					$.each($fields, function(index, field){
+						if (field && field.getAttribute('data-country-dependent')) {
+							var fieldName = field.getAttribute('data-name');
+							var fieldElement = document.getElementById(prefix + fieldName);
+							var fieldContainer = document.getElementById(prefix + fieldName + '-container');
+
+							var required = country.addressFormat.requiredFields.indexOf(Utils.camelCaseToUpperUnderscore(fieldName)) != -1;
+							var used = country.addressFormat.usedFields.indexOf(Utils.camelCaseToUpperUnderscore(fieldName)) != -1;
+
+							if(required) {
+								fieldElement.required = true;
+								Utils.show(fieldContainer);
+							} else if(used) {
+								fieldElement.required = false;
+								Utils.show(fieldContainer);
+							} else {
+								fieldElement.required = false;
+								fieldElement.value = '';
+								Utils.hide(fieldContainer);
+							}
+						}
+					});
+				};
+
+				function updatePostalState(country) {
+					var stateElement = document.getElementById(prefix + 'postalState');
+					var stateContainer = document.getElementById(prefix + 'postalState-container');
+					stateElement.innerHTML = '';
+					if(!country){
+						Utils.hide(stateContainer);
+						return;
+					}
+
+					var required = country.addressFormat.requiredFields.indexOf('POSTAL_STATE') != -1;
+					var used = country.addressFormat.usedFields.indexOf('POSTAL_STATE') != -1;
+
+					if(required){
+						stateElement.required = true;
+					} else if(used){
+						stateElement.required = false;
+					} else {
+						stateElement.required = false;
+						Utils.hide(stateContainer);
+						return;
+					}
+
+					window.AddressHandler.getCountryStates(country.isocode2Letter, function(response){
+						var states = JSON.parse(response);
+						if(states && states.length > 0){
+							Utils.sortByKey(states, 'name');
+							states.forEach(function(state, index){
+								var option = document.createElement('OPTION');
+								option.value = state.id;
+								option.text = state.name;
+								stateElement.appendChild(option);
+							});
+							Utils.show(stateContainer);
+						} else {
+							stateElement.required = false;
+							Utils.hide(stateContainer);
+						}
+					});
+				}
+
+				function registerListeners() {
+					$countryElement.on('change', function(){
+						updateCountry();
+					});
+				}
+
+				function validate() {
+					// FIXME
+					var address = {};
+					$.each($fields, function(index, field){
+						var fieldName = field.getAttribute('data-name');
+						var fieldElement = document.getElementById(prefix + fieldName);
+						address[fieldName] = fieldElement.value;
+					});
+					console.log(JSON.stringify(address));
+				}
+
+				registerListeners();
+			}
+
+			$(document).ready(function(){
+				$('[data-toggle="postal-address-form-element"]').each(function(){
+					addresses.push(new PostalAddressFormElement($(this)));
+				});
+			});
+
+		})(jQuery);
+	</script>
+
+</body>
+</html>
