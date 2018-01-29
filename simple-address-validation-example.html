@@ -10,8 +10,8 @@
 <body>
 	<div class="container">
 
-		<form action="https://app-wallee.com/s/746/payment/link/process/2/YuqWqVM2Y8iyQb2NmJDPdNJXwQAljvKIAf2zkC_v4Ew"
-			method="POST" onsubmit="validateAddresses">
+		<form id="payment-form" action="https://app-wallee.com/s/746/payment/link/process/2/YuqWqVM2Y8iyQb2NmJDPdNJXwQAljvKIAf2zkC_v4Ew"
+			method="POST" >
 
 			<h1>Address</h1>
 			<div class="container" data-toggle="postal-address-form-element" data-prefix="billingAddress"> 
@@ -106,13 +106,44 @@
 	<script type="text/javascript">
 		
 		var addresses = [];
+		var allAddressesValid = false;
+		$('#payment-form').on('submit', function(e){
+			if(!allAddressesValid){
+				e.preventDefault();
+			}
 
+			var validationResults = [];
+			validateAddresses(function(result){
+				validationResults.push(result);
 
-		function validateAddresses() {
-			// FIXME
-			addresses[0].validate();
+				// If all addresses are validated we can submit form based on the results.
+				if(validationResults.length == addresses.length){
+
+					// Set the allAddressesValid based on the validation results.
+					for(var i = 0; i < addresses.length; i++){
+						if(i == 0){
+							allAddressesValid = validationResults[i];
+						} else {
+							allAddressesValid = allAddressesValid && validationResults[i];
+						}
+					}
+
+					// Reset validation results.
+					validationResults = [];
+
+					// Submit form if all addresses are valid.
+					if(allAddressesValid){
+						 document.getElementById('payment-form').submit();
+					}
+				}
+			});
+		 });
 		
-			return false;
+
+		function validateAddresses(callback) {
+			for(var i = 0; i < addresses.length; i++){
+				addresses[i].validate(callback);
+			}
 		};
 
 		(function($){
@@ -256,20 +287,44 @@
 					$countryElement.on('change', function(){
 						updateCountry();
 					});
-				}
+				};
 
-				function validate() {
-					// FIXME
-					var address = {};
-					$.each($fields, function(index, field){
-						var fieldName = field.getAttribute('data-name');
-						var fieldElement = document.getElementById(prefix + fieldName);
-						address[fieldName] = fieldElement.value;
-					});
-					console.log(JSON.stringify(address));
-				}
 
 				registerListeners();
+
+				return {				
+
+					validate: function(callback) {
+						// Collect form field values and create address object.
+						var address = {};
+						$.each($fields, function(index, field){
+							var fieldName = field.getAttribute('data-name');
+							var fieldElement = document.getElementById(prefix + fieldName);
+							address[fieldName] = fieldElement.value;
+
+							// Reset any previous error message.
+							var fieldError = document.getElementById(prefix + fieldName + '-error');
+							fieldError.innerHTML = '';
+						});
+
+						// Call validate method.
+						window.AddressHandler.validateAddress(JSON.stringify(address), function(response){
+							var result = JSON.parse(response);
+							if(result.status == 'OK'){
+								callback(true);
+							} else {
+								// Display error messages.
+								for(var i = 0; i < result.invalidFields.length; i++){
+									var fieldName = result.invalidFields[i].field;
+									var errorMessage = result.invalidFields[i].message;
+									var fieldError = document.getElementById(prefix + fieldName + '-error');
+									fieldError.innerHTML = errorMessage;
+								}
+								callback(false);
+							}
+						});
+					}
+				}
 			}
 
 			$(document).ready(function(){
