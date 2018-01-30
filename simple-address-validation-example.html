@@ -224,7 +224,9 @@
 							var fieldName = field.getAttribute('data-name');
 							var fieldElement = document.getElementById(prefix + fieldName);
 							var fieldContainer = document.getElementById(prefix + fieldName + '-container');
-
+							var fieldError = document.getElementById(prefix + fieldName + '-error');
+							fieldError.innerHTML = '';
+							
 							var required = country.addressFormat.requiredFields.indexOf(Utils.camelCaseToUpperUnderscore(fieldName)) != -1;
 							var used = country.addressFormat.usedFields.indexOf(Utils.camelCaseToUpperUnderscore(fieldName)) != -1;
 
