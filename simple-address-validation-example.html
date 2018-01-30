@@ -104,48 +104,6 @@
 	<script type="text/javascript" src="https://app-wallee.com/assets/address/address-handler.js?language=en"></script>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript">
-		
-		var addresses = [];
-		var allAddressesValid = false;
-		$('#payment-form').on('submit', function(e){
-			if(!allAddressesValid){
-				e.preventDefault();
-			}
-
-			var validationResults = [];
-			validateAddresses(function(result){
-				validationResults.push(result);
-
-				// If all addresses are validated we can submit form based on the results.
-				if(validationResults.length == addresses.length){
-
-					// Set the allAddressesValid based on the validation results.
-					for(var i = 0; i < addresses.length; i++){
-						if(i == 0){
-							allAddressesValid = validationResults[i];
-						} else {
-							allAddressesValid = allAddressesValid && validationResults[i];
-						}
-					}
-
-					// Reset validation results.
-					validationResults = [];
-
-					// Submit form if all addresses are valid.
-					if(allAddressesValid){
-						 document.getElementById('payment-form').submit();
-					}
-				}
-			});
-		 });
-		
-
-		function validateAddresses(callback) {
-			for(var i = 0; i < addresses.length; i++){
-				addresses[i].validate(callback);
-			}
-		};
-
 		(function($){
 			var countryMap = {};
 
@@ -328,6 +286,47 @@
 					}
 				}
 			}
+			
+			var addresses = [];
+			var allAddressesValid = false;
+			$('#payment-form').on('submit', function(e){
+				if(!allAddressesValid){
+					e.preventDefault();
+				}
+
+				var validationResults = [];
+				validateAddresses(function(result){
+					validationResults.push(result);
+
+					// If all addresses are validated we can submit form based on the results.
+					if(validationResults.length == addresses.length){
+
+						// Set the allAddressesValid based on the validation results.
+						for(var i = 0; i < addresses.length; i++){
+							if(i == 0){
+								allAddressesValid = validationResults[i];
+							} else {
+								allAddressesValid = allAddressesValid && validationResults[i];
+							}
+						}
+
+						// Reset validation results.
+						validationResults = [];
+
+						// Submit form if all addresses are valid.
+						if(allAddressesValid){
+							 document.getElementById('payment-form').submit();
+						}
+					}
+				});
+			 });
+			
+
+			function validateAddresses(callback) {
+				for(var i = 0; i < addresses.length; i++){
+					addresses[i].validate(callback);
+				}
+			};
 
 			$(document).ready(function(){
 				$('[data-toggle="postal-address-form-element"]').each(function(){
