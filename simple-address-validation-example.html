@@ -249,39 +249,39 @@
 					});
 				};
 
-
 				registerListeners();
 
 				return {				
+					validate: function() {
+						return new Promise(function(resolve, reject) {
+						 	// Collect form field values and create address object.
+							var address = {};
+							$.each($fields, function(index, field){
+								var fieldName = field.getAttribute('data-name');
+								var fieldElement = document.getElementById(prefix + fieldName);
+								address[fieldName] = fieldElement.value;
 
-					validate: function(callback) {
-						// Collect form field values and create address object.
-						var address = {};
-						$.each($fields, function(index, field){
-							var fieldName = field.getAttribute('data-name');
-							var fieldElement = document.getElementById(prefix + fieldName);
-							address[fieldName] = fieldElement.value;
+								// Reset any previous error message.
+								var fieldError = document.getElementById(prefix + fieldName + '-error');
+								fieldError.innerHTML = '';
+							});
 
-							// Reset any previous error message.
-							var fieldError = document.getElementById(prefix + fieldName + '-error');
-							fieldError.innerHTML = '';
-						});
-
-						// Call validate method.
-						window.AddressHandler.validateAddress(JSON.stringify(address), function(response){
-							var result = JSON.parse(response);
-							if(result.status == 'OK'){
-								callback(true);
-							} else {
-								// Display error messages.
-								for(var i = 0; i < result.invalidFields.length; i++){
-									var fieldName = result.invalidFields[i].field;
-									var errorMessage = result.invalidFields[i].message;
-									var fieldError = document.getElementById(prefix + fieldName + '-error');
-									fieldError.innerHTML = errorMessage;
+							// Call validate method.
+							window.AddressHandler.validateAddress(JSON.stringify(address), function(response){
+								var result = JSON.parse(response);
+								if(result.status == 'OK'){
+									resolve();
+								} else {
+									// Display error messages.
+									for(var i = 0; i < result.invalidFields.length; i++){
+										var fieldName = result.invalidFields[i].field;
+										var errorMessage = result.invalidFields[i].message;
+										var fieldError = document.getElementById(prefix + fieldName + '-error');
+										fieldError.innerHTML = errorMessage;
+									}
+									reject();
 								}
-								callback(false);
-							}
+							});
 						});
 					}
 				}
@@ -292,40 +292,25 @@
 			$('#payment-form').on('submit', function(e){
 				if(!allAddressesValid){
 					e.preventDefault();
+				} else {
+					return;
 				}
 
-				var validationResults = [];
-				validateAddresses(function(result){
-					validationResults.push(result);
-
-					// If all addresses are validated we can submit form based on the results.
-					if(validationResults.length == addresses.length){
-
-						// Set the allAddressesValid based on the validation results.
-						for(var i = 0; i < addresses.length; i++){
-							if(i == 0){
-								allAddressesValid = validationResults[i];
-							} else {
-								allAddressesValid = allAddressesValid && validationResults[i];
-							}
-						}
-
-						// Reset validation results.
-						validationResults = [];
-
-						// Submit form if all addresses are valid.
-						if(allAddressesValid){
-							 document.getElementById('payment-form').submit();
-						}
-					}
+				validateAddresses().then(function() {
+					allAddressesValid = true;
+					document.getElementById('payment-form').submit();
+				}).catch(function(){
+					// We show error messages inline, so we don't have to do anything here.
+					// Optionally, we could display some global error message here.
 				});
-			 });
+			});
 			
-
-			function validateAddresses(callback) {
+			function validateAddresses() {
+				var validators = [];
 				for(var i = 0; i < addresses.length; i++){
-					addresses[i].validate(callback);
+					validators.push(addresses[i].validate());
 				}
+				return Promise.all(validators);
 			};
 
 			$(document).ready(function(){
