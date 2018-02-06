@@ -101,7 +101,7 @@
 	</div>
 
 
-	<script type="text/javascript" src="https://app-wallee.com/assets/address/address-handler.js?language=en"></script>
+	<script type="text/javascript" src="https://app-wallee.com/assets/js/i18n/address-handler.js?language=en"></script>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript">
 		(function($){
@@ -158,8 +158,7 @@
 				var prefix = $container.attr('data-prefix') + '-';
 				var $countryElement = $('#' + prefix + 'country');
 
-				window.AddressHandler.getCountries(function(response){
-					var countries = JSON.parse(response);
+				window.AddressHandler.getCountries().then(function(countries){
 					Utils.sortByKey(countries, 'name');
 					countries.forEach(function(country, index){
 						countryMap[country.isocode2Letter] = country;
@@ -225,8 +224,7 @@
 						return;
 					}
 
-					window.AddressHandler.getCountryStates(country.isocode2Letter, function(response){
-						var states = JSON.parse(response);
+					window.AddressHandler.getCountryStates(country.isocode2Letter).then(function(states){
 						if(states && states.length > 0){
 							Utils.sortByKey(states, 'name');
 							states.forEach(function(state, index){
@@ -251,37 +249,34 @@
 
 				registerListeners();
 
-				return {				
+				return {
 					validate: function() {
-						return new Promise(function(resolve, reject) {
-						 	// Collect form field values and create address object.
-							var address = {};
-							$.each($fields, function(index, field){
-								var fieldName = field.getAttribute('data-name');
-								var fieldElement = document.getElementById(prefix + fieldName);
-								address[fieldName] = fieldElement.value;
+					 	// Collect form field values and create address object.
+						var address = {};
+						$.each($fields, function(index, field){
+							var fieldName = field.getAttribute('data-name');
+							var fieldElement = document.getElementById(prefix + fieldName);
+							address[fieldName] = fieldElement.value;
 
-								// Reset any previous error message.
-								var fieldError = document.getElementById(prefix + fieldName + '-error');
-								fieldError.innerHTML = '';
-							});
+							// Reset any previous error message.
+							var fieldError = document.getElementById(prefix + fieldName + '-error');
+							fieldError.innerHTML = '';
+						});
 
-							// Call validate method.
-							window.AddressHandler.validateAddress(JSON.stringify(address), function(response){
-								var result = JSON.parse(response);
-								if(result.status == 'OK'){
-									resolve();
-								} else {
-									// Display error messages.
-									for(var i = 0; i < result.invalidFields.length; i++){
-										var fieldName = result.invalidFields[i].field;
-										var errorMessage = result.invalidFields[i].message;
-										var fieldError = document.getElementById(prefix + fieldName + '-error');
-										fieldError.innerHTML = errorMessage;
-									}
-									reject();
+						// Call validate method.
+						return window.AddressHandler.validateAddress(address).then(null, function(invalidFields){
+							if (invalidFields instanceof Error) {
+								throw invalidFields;
+							} else {
+								// Display error messages.
+								for(var i = 0; i < invalidFields.length; i++){
+									var fieldName = invalidFields[i].field;
+									var errorMessage = invalidFields[i].message;
+									var fieldError = document.getElementById(prefix + fieldName + '-error');
+									fieldError.innerHTML = errorMessage;
 								}
-							});
+								return Promise.reject();
+							}
 						});
 					}
 				}
@@ -299,9 +294,12 @@
 				validateAddresses().then(function() {
 					allAddressesValid = true;
 					document.getElementById('payment-form').submit();
-				}).catch(function(){
+				}, function(error){
 					// We show error messages inline, so we don't have to do anything here.
 					// Optionally, we could display some global error message here.
+					if (error instanceof Error) {
+						throw error;
+					}
 				});
 			});
 			
