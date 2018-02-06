@@ -102,7 +102,7 @@
 
 	<!-- This is needed for IE as it does not support Promises -->
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js"></script>
-	
+
 	<script type="text/javascript" src="https://app-wallee.com/assets/js/i18n/address-handler.js?language=en"></script>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript">
@@ -141,13 +141,13 @@
 					return !word ? null : word.replace(/([A-Z])/g, function (g) { return '_' + g[0] }).toUpperCase();
 				},
 
-				hide(element){
+				hide: function(element){
 					element.style.visibility = 'hidden';
 					element.hidden = true;
 					return;
 				},
 
-				show(element){
+				show: function(element){
 					element.style.visibility = 'visible';
 					element.hidden = false;
 					return;
